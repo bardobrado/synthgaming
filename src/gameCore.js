@@ -30,8 +30,8 @@ export default class Game {
         tetra.position.z = -15;
         tetra.rotation.z = Math.PI / 2;
         tetra.rotation.x = 4 * Math.PI / 3;
-        let hl1 = new HighlightLayer("hl1", this.scene);
-        hl1.addMesh(tetra, Color3.Magenta());
+        this.hl1 = new HighlightLayer("hl1", this.scene);
+        this.hl1.addMesh(tetra, Color3.Magenta());
         tetra.material = tetraMaterial;
         let groundMaterial = new GridMaterial("grid", this.scene);
         groundMaterial.lineColor = new Color3(2, 2, 4);
@@ -59,8 +59,8 @@ export default class Game {
         this.scene.registerBeforeRender(() => {
             tetra.rotation.y += 0.005;
             alpha += 0.03;
-            hl1.blurHorizontalSize = 0.3 + Math.cos(alpha) * 0.6 + 0.6;
-            hl1.blurVerticalSize = 0.3 + Math.sin(alpha / 3) * 0.6 + 0.6;
+            this.hl1.blurHorizontalSize = 0.3 + Math.cos(alpha) * 0.6 + 0.6;
+            this.hl1.blurVerticalSize = 0.3 + Math.sin(alpha / 3) * 0.6 + 0.6;
         });
     }
     createNewScene(_engine) {
@@ -71,6 +71,7 @@ export default class Game {
         camera.setTarget(Vector3.Zero());
         var light = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
         light.intensity = 0.49;
+        // let advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UIMenu", true, this.scene);
         return scene;
     }
     createPrimaryMenu(scene) {
@@ -100,5 +101,6 @@ export default class Game {
     removeAll() {
         this.container.removeAllFromScene();
         this.container.dispose();
+        HighlightLayer.GlowingMeshStencilReference = 2;
     }
 }

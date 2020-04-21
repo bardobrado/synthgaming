@@ -12,11 +12,16 @@ import BlackJack from "./blackjack";
 
 import Player from "./player";
 
+import Npc from "./npc";
+
 export const coisa = (player) => {
 
-    let ExitButton: boolean;
     let BJButton: boolean;
+    let ExitButton: boolean;
     let RestartButtonBj: boolean;
+    let HitBtBj: boolean;
+    let StayBtBj: boolean;
+
     let game: Game;
     let actualGame;
     let actualGameScene: Scene;
@@ -27,7 +32,7 @@ export const coisa = (player) => {
 
     // Associate a Babylon Engine to it.
     const engine = new Engine(canvas);
-    let scene = new Scene(engine);
+    // let scene = new Scene(engine);
 
     game = new Game();
     game.createBackgroundScene(engine);
@@ -48,7 +53,8 @@ export const coisa = (player) => {
             actualGame = new BlackJack();
             actualGameScene = game.createNewScene(engine)
             secondaryMenuScene = actualGame.createPrimaryMenu(game.createNewScene(engine));
-            actualGame.createNewGameBJ(player, actualGameScene, game.materialCard, game.container);
+            actualGame.addDisplayRecords(actualGameScene, npc, player);
+            actualGame.createNewGameBJ(game.hl1, player, actualGameScene, game.materialCard, game.container);
             primaryMenuScene = null;
             BJButton = false;
         }
@@ -58,19 +64,36 @@ export const coisa = (player) => {
             })
             actualGame.button_restart.onPointerClickObservable.addOnce(() => {
                 RestartButtonBj = true;
-
-
-
             });
-            actualGame.RunRenderLoop(engine);
+            actualGame.button_hit.onPointerClickObservable.addOnce(() => {
+                HitBtBj = true;
+            });
+            actualGame.button_stay.onPointerClickObservable.addOnce(() => {
+                StayBtBj = true;
+            });
+            actualGame.RunRenderLoop(engine, player, npc);
+        }
+
+        if (HitBtBj) {
+            actualGame.calculateNewHit(game.hl1, player, actualGameScene, game.materialCard, game.container);
+            HitBtBj = false;
+        }
+        if (StayBtBj) {
+            if (!actualGame.cant_stay) {
+                actualGame.cant_hit = true;
+                actualGame.RunNpc(game.hl1, npc, actualGameScene, game.materialCard, game.container);
+                StayBtBj = false;
+            }
         }
         if (RestartButtonBj) {
-            game.removeAll()
-            console.log("oi");
-            actualGame.createNewGameBJ(player, actualGameScene, game.materialCard, game.container);
+
+            game.removeAll();
+
+            actualGame.createNewGameBJ(game.hl1, player, actualGameScene, game.materialCard, game.container);
             RestartButtonBj = false;
         }
         if (ExitButton) {
+            game.removeAll();
             primaryMenuScene = game.createPrimaryMenu(game.createNewScene(engine));
             actualGameScene = null;
             secondaryMenuScene = null;
@@ -92,6 +115,8 @@ export const coisa = (player) => {
 
 }
 
-let player = new Player("aaa","aaa");
+let player = new Player("aaa", "aaa");
+let npc = new Npc("aaa", "aaa");
+
 
 coisa(player);

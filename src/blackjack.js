@@ -4,14 +4,20 @@ import { HighlightLayer } from "../node_modules/@babylonjs/core/index";
 import { AdvancedDynamicTexture } from "../node_modules/@babylonjs/gui/2D/advancedDynamicTexture";
 import { Control } from "../node_modules/@babylonjs/gui/2D/controls/index";
 import { Button } from "../node_modules/@babylonjs/gui/2D/controls/button";
+import { TextBlock } from "../node_modules/@babylonjs/gui/2D/controls/textBlock";
 import { BoxBuilder } from "../node_modules/@babylonjs/core/Meshes/Builders/boxBuilder";
 import Deck from "./deck";
 export default class Blackjack {
     constructor() {
+        this.HitBtBj = false;
+        this.StayBtBj = false;
+        this.gameStatus = true;
         this.columns = 13;
         this.rows = 4;
         this.phit = 0;
         this.hit_bt = 0;
+        this.cant_hit = false;
+        this.cant_stay = false;
     }
     createPrimaryMenu(scene) {
         var advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("GameBJMenu", true, scene);
@@ -61,36 +67,67 @@ export default class Blackjack {
         advancedTexture.addControl(this.button_hit);
         return scene;
     }
-    createNewGameBJ(player, scene, material, container) {
+    addDisplayRecords(scene, npc, player) {
+        let advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UIMenu", true, scene);
+        this.textStatus = new TextBlock();
+        this.textStatus.text = "";
+        this.textStatus.color = "white";
+        this.textStatus.fontSize = 24;
+        this.textStatus.left = -0;
+        this.textStatus.top = -0;
+        advancedTexture.addControl(this.textStatus);
+        this.textPointsPlayer = new TextBlock();
+        this.textPointsPlayer.text = "Points: " + player.tempPoints();
+        this.textPointsPlayer.color = "white";
+        this.textPointsPlayer.fontSize = 24;
+        this.textPointsPlayer.left = 0;
+        this.textPointsPlayer.top = 180;
+        advancedTexture.addControl(this.textPointsPlayer);
+        this.textPointsNpc = new TextBlock();
+        this.textPointsNpc.text = "Computer Points: " + npc.tempPoints();
+        this.textPointsNpc.color = "white";
+        this.textPointsNpc.fontSize = 24;
+        this.textPointsNpc.left = 0;
+        this.textPointsNpc.top = -180;
+        this.textPointsNpc.isVisible = false;
+        advancedTexture.addControl(this.textPointsNpc);
+    }
+    createNewGameBJ(hl1, player, scene, material, container) {
         let deckOfCards = new Deck(new Vector4(0 / (this.columns + 1), 0, 1 / (this.columns + 1), 1 / this.rows));
-        let deck0 = deckOfCards.getDeck();
+        this.deck0 = deckOfCards.getDeck();
         var j = 0;
         for (var i = 0; i < this.rows; i++) {
             for (var x = 1; x < this.columns + 1; x++) {
                 var FaceUV = new Array(6);
                 FaceUV[0] = new Vector4(0 / (this.columns + 1), 0, 1 / (this.columns + 1), 1 / this.rows);
                 FaceUV[1] = new Vector4((x) * (1 / (this.columns + 1)), i * (1 / this.rows), (x + 1) * (1 / (this.columns + 1)), (i + 1) * (1 / this.rows));
-                deck0[j].setFaceUV(FaceUV);
+                this.deck0[j].setFaceUV(FaceUV);
                 j++;
             }
         }
-        deck0 = deckOfCards.shuffle(deck0);
+        this.deck0 = deckOfCards.shuffle(this.deck0);
         player.setTmpPoints(0);
+        this.textStatus.text = "";
+        this.textPointsNpc.text = "";
+        this.gameStatus = true;
         this.hit_bt = 0;
+        this.phit = 0;
+        this.cant_hit = false;
+        this.cant_stay = false;
         this.playerCards = new Array();
         this.npcCards = new Array();
-        this.playerCards.push(this.createBoxCard(0, 1, 0, deck0, material, scene, container));
+        this.playerCards.push(this.createBoxCard(hl1, 0, 1, 0, this.deck0, scene, material, container));
         this.hit_bt++;
         this.phit++;
-        this.playerCards.push(this.createBoxCard(0, 2, 1, deck0, material, scene, container));
+        this.playerCards.push(this.createBoxCard(hl1, 0, 2, 1, this.deck0, scene, material, container));
         this.hit_bt++;
         this.phit++;
-        this.npcCards.push(this.createBoxCard(1, 2, 2, deck0, material, scene, container));
+        this.npcCards.push(this.createBoxCard(hl1, 1, 2, 2, this.deck0, scene, material, container));
         this.hit_bt++;
-        this.npcCards.push(this.createBoxCard(1, 2, 3, deck0, material, scene, container));
+        this.npcCards.push(this.createBoxCard(hl1, 1, 2, 3, this.deck0, scene, material, container));
         this.hit_bt++;
     }
-    createBoxCard(code, phit, hit_bt, deck, material, scene, container) {
+    createBoxCard(hl1, code, phit, hit_bt, deck, scene, material, container) {
         let options = {
             width: 3,
             height: 4.3,
@@ -99,24 +136,152 @@ export default class Blackjack {
         };
         let box = BoxBuilder.CreateBox("0", options, scene);
         box.material = material;
-        let hl1 = new HighlightLayer("hl1", scene);
+        hl1 = new HighlightLayer("hl1", scene);
         if (deck[hit_bt].getSequence() <= 26) {
             hl1.addMesh(box, Color3.Magenta());
         }
         else {
             hl1.addMesh(box, new Color3(0, 255, 255));
         }
+        container.effectLayers.push(hl1);
         container.meshes.push(box);
         deck[hit_bt].setBox(box);
         deck[hit_bt].getBox().isVisible = true;
         if (code == 0) {
-            deck[hit_bt].getBox().position = new Vector3(((hit_bt) * 4) - 4, -3, 0);
+            if (hit_bt < 4) {
+                deck[hit_bt].getBox().position = new Vector3(((hit_bt) * 4) - 5, -3, 0);
+            }
+            else {
+                deck[hit_bt].getBox().position = new Vector3(((hit_bt - 2) * 4) - 5, -3, 0);
+            }
         }
         else {
-            deck[hit_bt].getBox().position = new Vector3(((hit_bt - phit) * 4) - 4, 3, 0);
+            deck[hit_bt].getBox().rotation.y = Math.PI;
+            deck[hit_bt].getBox().position = new Vector3((((hit_bt - phit) * 4) - 5), 3, 0);
         }
         return deck[hit_bt];
     }
-    RunRenderLoop(engine) {
+    calculatePlayerPoints(player) {
+        let playerAses = 0;
+        player.setTmpPoints(0);
+        for (let i = 0; i < this.playerCards.length; i++) {
+            if (this.playerCards[i].getValue() === "A") {
+                playerAses++;
+            }
+        }
+        for (let i = 0; i < this.playerCards.length; i++) {
+            if (this.playerCards[i].getValue() === "A") {
+                if (playerAses == 1) {
+                    player.setTmpPoints(player.tempPoints() + 11);
+                }
+                else {
+                    player.setTmpPoints(player.tempPoints() + 1);
+                }
+            }
+            else if (this.playerCards[i].getValue() === "10" ||
+                this.playerCards[i].getValue() === "J" ||
+                this.playerCards[i].getValue() === "Q" ||
+                this.playerCards[i].getValue() === "K") {
+                player.setTmpPoints(player.tempPoints() + 10);
+            }
+            else {
+                player.setTmpPoints(player.tempPoints() + parseInt(this.playerCards[i].getValue()));
+            }
+        }
+        if (player.tempPoints() > 21 && playerAses == 1) {
+            player.setTmpPoints(player.tempPoints() - 10);
+        }
+        return player.tempPoints();
+    }
+    calculateNewHit(hl1, player, scene, material, container) {
+        if (!this.cant_hit) {
+            if (player.tempPoints() < 21 && !this.StayBtBj) {
+                this.playerCards.push(this.createBoxCard(hl1, 0, this.phit, this.hit_bt, this.deck0, scene, material, container));
+                this.hit_bt++;
+                this.phit++;
+            }
+            if (this.calculatePlayerPoints(player) > 21) {
+                this.textPointsPlayer.text = "Points: " + player.tempPoints();
+                this.cant_stay = true;
+                this.gameStatus = false;
+            }
+        }
+    }
+    calculateNpcPoints(npc) {
+        let npcAses = 0;
+        npc.setTmpPoints(0);
+        this.textPointsNpc.isVisible = true;
+        for (var i = 0; i < this.npcCards.length; i++) {
+            if (this.npcCards[i].getValue() == "A") {
+                npcAses++;
+            }
+        }
+        for (var i = 0; i < this.npcCards.length; i++) {
+            if (this.npcCards[i].getValue() === "A") {
+                if (npcAses == 1) {
+                    npc.setTmpPoints(npc.tempPoints() + 11);
+                }
+                else {
+                    npc.setTmpPoints(npc.tempPoints() + 1);
+                }
+            }
+            else if (this.npcCards[i].getValue() === "10" ||
+                this.npcCards[i].getValue() === "J" ||
+                this.npcCards[i].getValue() === "Q" ||
+                this.npcCards[i].getValue() === "K") {
+                npc.setTmpPoints(npc.tempPoints() + 10);
+            }
+            else {
+                npc.setTmpPoints(npc.tempPoints() + parseInt(this.npcCards[i].getValue()));
+            }
+        }
+        if (npc.tempPoints() > 21 && npcAses == 1) {
+            npc.setTmpPoints(npc.tempPoints() - 10);
+        }
+    }
+    RunNpc(hl1, npc, scene, material, container) {
+        this.cant_hit = true;
+        while (npc.tempPoints() < 21) {
+            var diff = ((21 - npc.tempPoints()) * 100) / 21;
+            npc.setChanceToStayBj(Math.floor(Math.random() * ((diff * 1.5) - diff) + diff));
+            if (Math.floor(Math.random() * ((npc.getChanceToStayBj() * 1.2) - npc.getChanceToStayBj()) + npc.getChanceToStayBj()) > 20) {
+                this.npcCards.push(this.createBoxCard(hl1, 1, this.phit, this.hit_bt, this.deck0, scene, material, container));
+                this.hit_bt++;
+                this.calculateNpcPoints(npc);
+            }
+            else {
+                break;
+            }
+        }
+        this.gameStatus = false;
+    }
+    calculateWinner(player, npc) {
+        if (npc.tempPoints() <= 21 && npc.tempPoints() >= player.tempPoints()) {
+            this.textStatus.text = "YOU LOSE!";
+        }
+        else {
+            if (player.tempPoints() <= 21) {
+                this.textStatus.text = "YOU WIN!!!";
+            }
+            else {
+                this.textStatus.text = "YOU LOSE!";
+            }
+        }
+        this.textPointsNpc.text = "Computer Points: " + npc.tempPoints();
+    }
+    RunRenderLoop(engine, player, npc) {
+        if (!this.gameStatus) {
+            for (var i = 0; i < this.npcCards.length; i++) {
+                if (this.npcCards[i].getBox().rotation.y > 0) {
+                    this.npcCards[i].getBox().isVisible = true;
+                    this.npcCards[i].getBox().rotation.y -= 0.32;
+                }
+            }
+            this.calculateNpcPoints(npc);
+            this.calculateWinner(player, npc);
+        }
+        else {
+            this.textPointsPlayer.text = "Points: : " + this.calculatePlayerPoints(player);
+        }
     }
 }
