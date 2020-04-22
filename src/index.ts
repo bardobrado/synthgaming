@@ -6,21 +6,28 @@ import {
     Scene
 } from "../node_modules/@babylonjs/core/scene";
 
-import Game from "./gameCore.js";
+import Game from "./gameCore";
+
+import News from "./news";
+
+import Menu from "./menu"
 
 import BlackJack from "./blackjack";
 
 import Player from "./player";
 
 import Npc from "./npc";
+import { SubMesh } from "../node_modules/@babylonjs/core/index";
 
-export const coisa = (player) => {
+export const MyGame = (player) => {
 
     let BJButton: boolean;
     let ExitButton: boolean;
     let RestartButtonBj: boolean;
     let HitBtBj: boolean;
     let StayBtBj: boolean;
+    let subMenu: boolean = false;
+    let subSubMenu: boolean = false;
 
     let game: Game;
     let actualGame;
@@ -37,8 +44,14 @@ export const coisa = (player) => {
     game = new Game();
     game.createBackgroundScene(engine);
 
-    let primaryMenuScene: Scene = game.createPrimaryMenu(game.createNewScene(engine));
+    let primaryMenuScene = game.createPrimaryMenu(game.createNewScene(engine));
 
+    let news = new News();
+    news.CreateCarrouselMenu(primaryMenuScene);
+
+    let menu = new Menu();
+
+    let menuScene = menu.CreatelMenu(primaryMenuScene);
 
     // Render every frame
 
@@ -53,6 +66,7 @@ export const coisa = (player) => {
             actualGame = new BlackJack();
             actualGameScene = game.createNewScene(engine)
             secondaryMenuScene = actualGame.createPrimaryMenu(game.createNewScene(engine));
+            menuScene = menu.CreatelMenu(secondaryMenuScene);
             actualGame.addDisplayRecords(actualGameScene, npc, player);
             actualGame.createNewGameBJ(game.hl1, player, actualGameScene, game.materialCard, game.container);
             primaryMenuScene = null;
@@ -71,7 +85,7 @@ export const coisa = (player) => {
             actualGame.button_stay.onPointerClickObservable.addOnce(() => {
                 StayBtBj = true;
             });
-            actualGame.RunRenderLoop(engine, player, npc);
+            actualGame.RunRenderLoop(actualGameScene, game.hl1, player, npc);
         }
 
         if (HitBtBj) {
@@ -95,6 +109,9 @@ export const coisa = (player) => {
         if (ExitButton) {
             game.removeAll();
             primaryMenuScene = game.createPrimaryMenu(game.createNewScene(engine));
+            news.CreateCarrouselMenu(primaryMenuScene);
+            menuScene = menu.CreatelMenu(primaryMenuScene);
+
             actualGameScene = null;
             secondaryMenuScene = null;
             actualGame = null;
@@ -111,12 +128,28 @@ export const coisa = (player) => {
         if (actualGameScene) {
             actualGameScene.render();
         }
+        if (menuScene) {
+            menu.ButtonMenu.onPointerClickObservable.addOnce(() => {
+                subSubMenu = true;
+
+            })
+            if (subSubMenu) {
+                if (subMenu == false) {
+                    subMenu = true;
+                    menu.CreateSubMenu(menuScene, player)
+                } else {
+                    subMenu = false;
+                    menu.RemoveSubMenu(player);
+                }
+                subSubMenu = false;
+            }
+        }
     });
 
 }
 
-let player = new Player("aaa", "aaa");
-let npc = new Npc("aaa", "aaa");
+let player = new Player("aaa", "aaa", false);
+let npc = new Npc("aaa", "aaa", true);
 
 
-coisa(player);
+MyGame(player);

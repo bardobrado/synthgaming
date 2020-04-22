@@ -2,6 +2,7 @@
 import { Vector3, Color3, Vector4 } from "../node_modules/@babylonjs/core/Maths/math";
 import { HighlightLayer } from "../node_modules/@babylonjs/core/index";
 import { AdvancedDynamicTexture } from "../node_modules/@babylonjs/gui/2D/advancedDynamicTexture";
+import { Rectangle } from "../node_modules/@babylonjs/gui/2D/controls/index";
 import { Control } from "../node_modules/@babylonjs/gui/2D/controls/index";
 import { Button } from "../node_modules/@babylonjs/gui/2D/controls/button";
 import { TextBlock } from "../node_modules/@babylonjs/gui/2D/controls/textBlock";
@@ -18,77 +19,125 @@ export default class Blackjack {
         this.hit_bt = 0;
         this.cant_hit = false;
         this.cant_stay = false;
+        this.alpha = 0;
     }
     createPrimaryMenu(scene) {
         var advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("GameBJMenu", true, scene);
+        this.menuLayer = new Rectangle();
+        // this.menuLayer.top = "30px";
+        this.menuLayer.width = "600px";
+        this.menuLayer.height = "200px";
+        this.menuLayer.cornerRadius = 3;
+        this.menuLayer.color = "Black";
+        this.menuLayer.thickness = 2;
+        this.menuLayer.background = "White";
+        this.menuLayer.alpha = .9;
+        this.menuLayer.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.menuLayer.top = "350px";
+        advancedTexture.addControl(this.menuLayer);
         this.button_exit = Button.CreateSimpleButton("button_exit", "Exit");
-        this.button_exit.width = "100px";
-        this.button_exit.height = "40px";
+        this.button_exit.width = "125px";
+        this.button_exit.height = "50px";
         this.button_exit.color = "Black";
+        this.button_exit.fontFamily = "Monospace";
+        this.button_exit.fontSizeInPixels = 30;
+        this.button_exit.fontStyle = "bold";
+        this.button_exit.paddingTop = "-15px";
         this.button_exit.cornerRadius = 3;
-        this.button_exit.background = "magenta";
+        this.button_exit.background = "gray";
         this.button_exit.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-        this.button_exit.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-        this.button_exit.top = "-120px";
-        this.button_exit.left = "80px";
+        this.button_exit.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.button_exit.top = "400px";
+        this.button_exit.left = "210px";
         advancedTexture.addControl(this.button_exit);
-        this.button_restart = Button.CreateSimpleButton("but", "Restart");
-        this.button_restart.width = "100px";
-        this.button_restart.height = "40px";
+        this.button_restart = Button.CreateSimpleButton("but", "New");
+        this.button_restart.width = "125px";
+        this.button_restart.height = "50px";
         this.button_restart.color = "Black";
+        this.button_restart.fontFamily = "Monospace";
+        this.button_restart.fontSizeInPixels = 30;
+        this.button_restart.fontStyle = "bold";
+        this.button_restart.paddingTop = "-15px";
         this.button_restart.cornerRadius = 3;
-        this.button_restart.background = "magenta";
+        this.button_restart.background = "gray";
         this.button_restart.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-        this.button_restart.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-        this.button_restart.top = "-120px";
-        this.button_restart.left = "-80px";
+        this.button_restart.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.button_restart.top = "400px";
+        this.button_restart.left = "70px";
         advancedTexture.addControl(this.button_restart);
         this.button_stay = Button.CreateSimpleButton("but", "Stay");
-        this.button_stay.width = "100px";
-        this.button_stay.height = "40px";
+        this.button_stay.width = "125px";
+        this.button_stay.height = "50px";
         this.button_stay.color = "Black";
+        this.button_stay.fontFamily = "Monospace";
+        this.button_stay.fontSizeInPixels = 30;
+        this.button_stay.fontStyle = "bold";
+        this.button_stay.paddingTop = "-15px";
         this.button_stay.cornerRadius = 3;
-        this.button_stay.background = "magenta";
+        this.button_stay.background = "gray";
         this.button_stay.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-        this.button_stay.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-        this.button_stay.top = "-190px";
-        this.button_stay.left = "200px";
+        this.button_stay.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.button_stay.top = "400px";
+        this.button_stay.left = "-70x";
         advancedTexture.addControl(this.button_stay);
         this.button_hit = Button.CreateSimpleButton("but", "Hit");
-        this.button_hit.width = "100px";
-        this.button_hit.height = "40px";
+        this.button_hit.width = "125px";
+        this.button_hit.height = "50px";
         this.button_hit.color = "Black";
+        this.button_hit.fontFamily = "Monospace";
+        this.button_hit.fontSizeInPixels = 30;
+        this.button_hit.fontStyle = "bold";
+        this.button_hit.paddingTop = "-15px";
         this.button_hit.cornerRadius = 3;
-        this.button_hit.background = "magenta";
+        this.button_hit.background = "gray";
         this.button_hit.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-        this.button_hit.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
-        this.button_hit.top = "-190px";
-        this.button_hit.left = "-200px";
+        this.button_hit.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.button_hit.top = "400px";
+        this.button_hit.left = "-210px";
         advancedTexture.addControl(this.button_hit);
         return scene;
     }
     addDisplayRecords(scene, npc, player) {
         let advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UIMenu", true, scene);
+        this.backLayer = new Rectangle();
+        this.backLayer.width = "420px";
+        this.backLayer.height = "120px";
+        this.backLayer.cornerRadius = 3;
+        this.backLayer.color = "Black";
+        this.backLayer.thickness = 2;
+        this.backLayer.background = "White";
+        this.backLayer.alpha = .7;
+        this.backLayer.isVisible = false;
+        advancedTexture.addControl(this.backLayer);
         this.textStatus = new TextBlock();
         this.textStatus.text = "";
-        this.textStatus.color = "white";
-        this.textStatus.fontSize = 24;
+        this.textStatus.color = "gray";
+        this.textStatus.fontFamily = "Monospace";
+        this.textStatus.fontSize = 30;
         this.textStatus.left = -0;
-        this.textStatus.top = -0;
+        this.textStatus.top = 20;
+        this.textStatus.outlineWidth = 2;
+        this.textStatus.outlineColor = "black";
         advancedTexture.addControl(this.textStatus);
         this.textPointsPlayer = new TextBlock();
         this.textPointsPlayer.text = "Points: " + player.tempPoints();
-        this.textPointsPlayer.color = "white";
-        this.textPointsPlayer.fontSize = 24;
+        this.textPointsPlayer.color = "gray";
+        this.textPointsPlayer.fontFamily = "Monospace";
+        this.textPointsPlayer.fontSize = 30;
         this.textPointsPlayer.left = 0;
-        this.textPointsPlayer.top = 180;
+        this.textPointsPlayer.top = "300px";
+        this.textPointsPlayer.outlineWidth = 2;
+        this.textPointsPlayer.outlineColor = "black";
         advancedTexture.addControl(this.textPointsPlayer);
         this.textPointsNpc = new TextBlock();
         this.textPointsNpc.text = "Computer Points: " + npc.tempPoints();
-        this.textPointsNpc.color = "white";
-        this.textPointsNpc.fontSize = 24;
+        this.textPointsNpc.color = "gray";
+        this.textPointsNpc.fontFamily = "Monospace";
+        this.textPointsNpc.fontSize = 30;
         this.textPointsNpc.left = 0;
-        this.textPointsNpc.top = -180;
+        this.textPointsNpc.top = -30;
+        this.textPointsNpc.outlineWidth = 2;
+        this.textPointsNpc.outlineColor = "black";
         this.textPointsNpc.isVisible = false;
         advancedTexture.addControl(this.textPointsNpc);
     }
@@ -107,6 +156,7 @@ export default class Blackjack {
         }
         this.deck0 = deckOfCards.shuffle(this.deck0);
         player.setTmpPoints(0);
+        this.backLayer.isVisible = false;
         this.textStatus.text = "";
         this.textPointsNpc.text = "";
         this.gameStatus = true;
@@ -137,11 +187,11 @@ export default class Blackjack {
         let box = BoxBuilder.CreateBox("0", options, scene);
         box.material = material;
         hl1 = new HighlightLayer("hl1", scene);
-        if (deck[hit_bt].getSequence() <= 26) {
-            hl1.addMesh(box, Color3.Magenta());
+        if (deck[hit_bt].getSequence() <= 25) {
+            hl1.addMesh(box, Color3.White());
         }
         else {
-            hl1.addMesh(box, new Color3(0, 255, 255));
+            hl1.addMesh(box, Color3.White());
         }
         container.effectLayers.push(hl1);
         container.meshes.push(box);
@@ -149,15 +199,15 @@ export default class Blackjack {
         deck[hit_bt].getBox().isVisible = true;
         if (code == 0) {
             if (hit_bt < 4) {
-                deck[hit_bt].getBox().position = new Vector3(((hit_bt) * 4) - 5, -3, 0);
+                deck[hit_bt].getBox().position = new Vector3(((hit_bt) * 4) - 10, -3, 25);
             }
             else {
-                deck[hit_bt].getBox().position = new Vector3(((hit_bt - 2) * 4) - 5, -3, 0);
+                deck[hit_bt].getBox().position = new Vector3(((hit_bt - 2) * 4) - 10, -3, 25);
             }
         }
         else {
             deck[hit_bt].getBox().rotation.y = Math.PI;
-            deck[hit_bt].getBox().position = new Vector3((((hit_bt - phit) * 4) - 5), 3, 0);
+            deck[hit_bt].getBox().position = new Vector3((((hit_bt - phit) * 4) - 10), 3, 25);
         }
         return deck[hit_bt];
     }
@@ -243,8 +293,8 @@ export default class Blackjack {
         this.cant_hit = true;
         while (npc.tempPoints() < 21) {
             var diff = ((21 - npc.tempPoints()) * 100) / 21;
-            npc.setChanceToStayBj(Math.floor(Math.random() * ((diff * 1.5) - diff) + diff));
-            if (Math.floor(Math.random() * ((npc.getChanceToStayBj() * 1.2) - npc.getChanceToStayBj()) + npc.getChanceToStayBj()) > 20) {
+            npc.setChanceToStayBj(Math.floor(Math.random() * ((diff * 1.2) - diff) + diff));
+            if (npc.chanceToStayBj > 20) {
                 this.npcCards.push(this.createBoxCard(hl1, 1, this.phit, this.hit_bt, this.deck0, scene, material, container));
                 this.hit_bt++;
                 this.calculateNpcPoints(npc);
@@ -257,19 +307,30 @@ export default class Blackjack {
     }
     calculateWinner(player, npc) {
         if (npc.tempPoints() <= 21 && npc.tempPoints() >= player.tempPoints()) {
-            this.textStatus.text = "YOU LOSE!";
+            if (this.npcCards[0].getBox().rotation.y <= 0) {
+                this.backLayer.isVisible = true;
+                this.textStatus.text = "YOU LOSE!";
+            }
         }
         else {
             if (player.tempPoints() <= 21) {
-                this.textStatus.text = "YOU WIN!!!";
+                if (this.npcCards[0].getBox().rotation.y <= 0) {
+                    this.backLayer.isVisible = true;
+                    this.textStatus.text = "YOU WIN!!!";
+                }
             }
             else {
-                this.textStatus.text = "YOU LOSE!";
+                if (this.npcCards[0].getBox().rotation.y <= 0) {
+                    this.backLayer.isVisible = true;
+                    this.textStatus.text = "YOU LOSE!";
+                }
             }
         }
         this.textPointsNpc.text = "Computer Points: " + npc.tempPoints();
     }
-    RunRenderLoop(engine, player, npc) {
+    RunRenderLoop(scene, hl1, player, npc) {
+        // HighlightLayer.GlowingMeshStencilReference = 2;
+        this.alpha += 0.01;
         if (!this.gameStatus) {
             for (var i = 0; i < this.npcCards.length; i++) {
                 if (this.npcCards[i].getBox().rotation.y > 0) {

@@ -1,10 +1,11 @@
 export default class Player {
-    constructor(name, email) {
+    constructor(name, email, logged) {
         this._name = name;
         this._email = email;
         this._password = "123456";
         this._cash = 500;
         this._tempPoints = 0;
+        this._logged = logged;
     }
     name() {
         return this._name;
@@ -24,6 +25,9 @@ export default class Player {
     recordPtBj() {
         return this._recordPointsBJ;
     }
+    logged() {
+        return this._logged;
+    }
     setName(name) {
         this._name = name;
     }
@@ -41,5 +45,8 @@ export default class Player {
     }
     setRecordPtBj(record) {
         this._recordPointsBJ = record;
+    }
+    setLogged(logged) {
+        this._logged = logged;
     }
 }
