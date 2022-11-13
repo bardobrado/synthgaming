@@ -9,7 +9,7 @@
     "@babylonjs/controls": "^1.0.0-alpha.1",
     "@types/source-map": "0.5.2",
     "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.12"
   },
   "devDependencies": {
     "@babylonjs/core": "^4.1.0",
